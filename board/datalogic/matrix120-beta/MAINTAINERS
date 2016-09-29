@@ -1,0 +1,6 @@
+SAMA5D2 XPLAINED BOARD
+M:	antonio.poggiali@datalogic.com
+S:	Maintained
+F:	board/datalogic/matrix120-beta/
+F:	include/configs/matrix120-beta.h
+F:	configs/matrix120-beta_qspiflash_defconfig

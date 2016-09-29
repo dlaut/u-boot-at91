@@ -24,6 +24,28 @@ config SYS_PROMPT
 	  This string is displayed in the command line to the left of the
 	  cursor.
 
+config CMD_MTDPARTS
+	bool "mtdparts"
+
+menu "Storage commands"
+
+config CMD_UBI
+	bool "ubi"
+	select RBTREE
+	help
+	  Adds commands for interacting with MTD partitions formatted
+	  with the UBI flash translation layer
+
+config UBI_SILENCE_MSG
+	bool "Silence UBI messages"
+	default y if ENV_IS_IN_UBI
+	depends on CMD_UBI
+	help
+	  Make the verbose messages from UBI stop printing. This leaves
+	  warnings and errors enabled.
+
+endmenu
+
 menu "Autoboot options"
 
 config AUTOBOOT_KEYED

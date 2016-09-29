@@ -145,7 +145,7 @@ static int spi_flash_read_bar(struct spi_flash *flash, u8 idcode0)
 		flash->bank_write_cmd = CMD_EXTNADDR_WREAR;
 	}
 
-	ret = spi_flash_read_reg(flash, flash->bank_read_cmd, &curr_bank, 1);
+	ret = spi_flash_read_reg(flash, flash->bank_read_cmd, 1, &curr_bank);
 	if (ret) {
 		debug("SF: fail to read bank addr register\n");
 		return ret;
@@ -403,6 +403,10 @@ int spi_flash_erase_alg(struct spi_flash *flash, u32 offset, size_t len,
 		len -= erase_size;
 	}
 
+#ifdef CONFIG_SPI_FLASH_BAR
+	spi_flash_write_bar(flash, 0x00);
+#endif
+
 release:
 	spi_release_bus(spi);
 
@@ -511,6 +515,10 @@ int spi_flash_write_alg(struct spi_flash *flash, u32 offset, size_t len,
 		offset += chunk_len;
 	}
 
+#ifdef CONFIG_SPI_FLASH_BAR
+	spi_flash_write_bar(flash, 0x00);
+#endif
+
 release:
 	spi_release_bus(spi);
 
@@ -613,6 +621,10 @@ int spi_flash_read_alg(struct spi_flash *flash, u32 offset, size_t len,
 		len -= read_len;
 		data += read_len;
 	}
+
+#ifdef CONFIG_SPI_FLASH_BAR
+		spi_flash_write_bar(flash, 0x00);
+#endif
 
 release:
 	spi_release_bus(spi);

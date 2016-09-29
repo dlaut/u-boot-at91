@@ -1,0 +1,15 @@
+config CMD_UBIFS
+	bool "ubifs"
+	select LZO
+	help
+	  Adds commands for interacting with UBI volumes formatted as
+	  UBIFS.  UBIFS is read-only in u-boot.
+
+config UBIFS_SILENCE_MSG
+	bool "Silence UBIFS messages"
+	default y if ENV_IS_IN_UBI
+	depends on CMD_UBIFS
+	help
+	  Make the verbose messages from UBIFS stop printing. This
+	  leaves warnings and errors enabled.
+

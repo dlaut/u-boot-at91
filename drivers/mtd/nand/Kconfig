@@ -1,5 +1,15 @@
 menu "NAND Device Support"
 
+menu "Memory Technology Device (MTD) support"
+
+config MTD_PARTITIONS
+	bool "mtd partitions support"
+	help
+	  Adds the MTD partitioning infrastructure from the Linux
+	  kernel. Needed for UBI support.
+ 
+endmenu
+
 config SYS_NAND_SELF_INIT
 	bool
 	help

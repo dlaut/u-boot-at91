@@ -7,6 +7,8 @@ config MTD
 	  Enable driver model for Memory Technology Devices (MTD), such as
 	  flash, RAM and similar chips, often used for solid state file
 	  systems on embedded devices.
+config MTD_DEVICE
+	bool "mtd device"
 
 config CFI_FLASH
 	bool "Enable Driver Model for CFI Flash driver"
