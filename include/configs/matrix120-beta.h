@@ -130,12 +130,11 @@
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_OFFSET_REDUND 	0x20000
 
-#define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_BOOTCOMMAND      "sf probe; run production_check; run bootcmd_flash; run bootcmd_usb_recursive"
+#define CONFIG_BOOTCOMMAND      "sf probe; env set ethact usb_ether; run production_check; run bootcmd_flash; run bootcmd_usb_recursive"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"base_bootargs="						\
-		"quiet rootfstype=ramfs "	\
-		"root=/dev/ram0 rw ubi.mtd=1 ubi.mtd=2\0"					\
+		"console=null rootfstype=ramfs "	\
+		"root=/dev/ram0 rw \0"					\
 	"cdc_connect_timeout=120;\0"					\
 	"bootcmd_flash="						\
 		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
@@ -143,50 +142,25 @@
 		"ubifsmount ubi0:boot; "				\
 		"ubifsload 0x21000000 uImage.dtb; "			\
 		"ubifsload 0x22000000 uImage.bin; "			\
-		"ubifsload 0x23000000 rootfs.cpio.lz4.u-boot; "		\
-		"ubifsumount; "		\
-		"bootm 0x22000000 0x23000000 0x21000000;\0"		\
-	"load_boot_images_usb="                                              \
-		"env set ethact usb_ether; "						\
-		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
-		"usb start; "                                           \
-		"tftp 0x21000000 ${tftp_dir}/uImage.dtb; "       \
-		"sleep ${usb_wait_t}; "                                 \
-		"tftp 0x22000000 ${tftp_dir}/uImage.bin; "       \
-		"sleep ${usb_wait_t}; "                                 \
-		"tftp 0x23000000 ${tftp_dir}/rootfs.cpio.lz4.u-boot; "\
-		"usb stop; "                                            \
+		"ubifsload 0x23000000 rootfs.cpio.gz.u-boot; "		\
 		"bootm 0x22000000 0x23000000 0x21000000;\0"		\
 	"bootcmd_usb="							\
                 "echo Run from USB...; " 		                \
-		"gpio set 33; "						\
-		"env set tftp_dir matrix120-recovery; "						\
-		"run load_boot_images_usb; "		\
-		"gpio set 35;\0"					\
-    "bootcmd_usb_recursive="                                        \
-		"run bootcmd_usb; "					\
-		"run bootcmd_usb_recursive;\0"				\
-	"bootcmd_production="							\
-                "echo Run production test suite...; " 		                \
-		"gpio set 37; "						\
-		"env set tftp_dir matrix120-pts; "						\
-		"run load_boot_images_usb; "		\
-		"gpio set 34;\0"					\
-	"load_boot_images_eth="                                              \
+		"env set ethact usb_ether; "				\
 		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
-		"tftp 0x21000000 ${tftp_dir}/uImage.dtb; "       \
-		"tftp 0x22000000 ${tftp_dir}/uImage.bin; "       \
-		"tftp 0x23000000 ${tftp_dir}/rootfs.cpio.lz4.u-boot; "\
-		"bootm 0x22000000 0x23000000 0x21000000;\0"		\
-	"bootcmd_eth="							\
-                "echo Run from ETH...; " 		                \
 		"gpio set 33; "						\
-		"env set tftp_dir matrix120-recovery; "						\
-		"run load_boot_images_eth; "       \
+		"usb start; "                                           \
+		"tftp 0x21000000 matrix120-recovery/uImage.dtb; "       \
+		"sleep ${usb_wait_t}; "                                 \
+		"tftp 0x22000000 matrix120-recovery/uImage.bin; "       \
+		"sleep ${usb_wait_t}; "                                 \
+		"tftp 0x23000000 matrix120-recovery/rootfs.cpio.gz.u-boot; "\
+		"usb stop; "                                            \
+		"bootm 0x22000000 0x23000000 0x21000000; "		\
 		"gpio set 35;\0"					\
-    "bootcmd_eth_recursive="                                        \
-		"run bootcmd_eth;"					\
-		"run bootcmd_eth_recursive;\0"				\
+        "bootcmd_usb_recursive="                                        \
+		"run bootcmd_usb;"					\
+		"run bootcmd_usb_recursive;\0"				\
 	"ipaddr=192.168.0.1\0"				           	\
 	"serverip=192.168.0.2\0"					\
 	"netmask=255.255.255.0\0"					\
@@ -197,42 +171,54 @@
 		"mtdparts=f0020000.qspi:1M(u-boot),26M(boot),-(user)\0" \
 	"mtdids="							\
 		"nor0=f0020000.qspi\0"					\
-	"update_boot_ubifs="						\
-		"env set filesize 0; "		\
+	"load_boot_ubifs="                                              \
+		"usb start; "                                           \
 		"tftp 0x21000000 matrix120/boot.ubifs; "                \
+		"usb stop;\0" 						\
+	"load_user_ubifs="                                              \
+		"usb start; "                                           \
+		"tftp 0x21000000 matrix120/user.ubifs; "                \
+		"usb stop;\0"						\
+	"update_boot_ubifs="						\
+		"env set filesize 0; run load_boot_ubifs; "		\
 		"if test ${filesize} != 0 ; "				\
 		"then "							\
 			"sf erase 0x00100000 0x01A00000; "		\
 			"sf write 0x21000000 0x00100000 ${filesize}; "	\
 		"fi\0" 							\
 	"update_user_ubifs="						\
-		"env set filesize 0; "		\
-		"tftp 0x21000000 matrix120/user.ubifs; "                \
+		"env set filesize 0; run load_user_ubifs; "		\
 		"if test ${filesize} != 0 ; "				\
 		"then " 						\
 			"sf erase 0x01B00000 0x00500000; "              \
 			"sf write 0x21000000 0x01B00000 ${filesize}; "  \
 		"fi\0" 							\
 	"update_usb="                                                   \
-		"usb start; "                                           \
-		"run update_boot_ubifs; "				\
-		"sleep ${usb_wait_t}; "  				\
-		"run update_user_ubifs; "				\
-		"usb stop; " 						\
-		"run bootcmd_flash\0"					\
-	"update_eth="                                                   \
 		"run update_boot_ubifs; "				\
 		"run update_user_ubifs; "				\
 		"run bootcmd_flash\0"					\
 	"usb_wait_t=3;\0"						\
-	"run_production=0;\0"						\
-	"bootdelay=0;\0"						\
 	"production_file="						\
 		"/AppData/BootInfo.txt\0"				\
 	"production_check="								\
-		"if test ${run_production} = 1 ; "						\
-		"then " 						\
-			"run bootcmd_production; "							\
+		"ubi part user; "							\
+		"ubifsmount ubi0:user; "						\
+		"setenv filesize ''; "							\
+		"ubifsload 0x21000000 ${production_file}; "				\
+		"ubifsumount; "								\
+		"if test -n ${filesize}; then "						\
+			"gpio set 37;"							\
+			"echo Run production test suite...; "				\
+			"usb start; "							\
+			"tftp 0x21000000 matrix120-pts/uImage.dtb; "		\
+			"sleep ${usb_wait_t}; "					\
+			"tftp 0x22000000 matrix120-pts/uImage.bin; "		\
+			"sleep ${usb_wait_t}; "					\
+			"tftp 0x23000000 matrix120-pts/rootfs.cpio.gz.u-boot; "	\
+			"usb stop; "							\
+			"setenv bootargs ${base_bootargs} ${mtdparts}; "		\
+			"bootm 0x22000000 0x23000000 0x21000000; "			\
+			"gpio set 34;"							\
 		"fi;\0"
 #endif
 
