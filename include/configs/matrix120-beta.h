@@ -225,12 +225,16 @@
 		"run update_user_ubifs; "				\
 		"run bootcmd_flash\0"					\
 	"usb_wait_t=3;\0"						\
-	"run_production=0;\0"						\
 	"bootdelay=0;\0"						\
 	"production_file="						\
 		"/AppData/BootInfo.txt\0"				\
 	"production_check="								\
-		"if test ${run_production} = 1 ; "						\
+		"ubi part user; "							\
+		"ubifsmount ubi0:user; "						\
+		"setenv filesize ''; "							\
+		"ubifsload 0x21000000 ${production_file}; "				\
+		"ubifsumount; "								\
+		"if test -n ${filesize}; then "	\
 		"then " 						\
 			"run bootcmd_production; "							\
 		"fi;\0"
