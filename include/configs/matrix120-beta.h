@@ -234,7 +234,7 @@
 		"setenv filesize ''; "							\
 		"ubifsload 0x21000000 ${production_file}; "				\
 		"ubifsumount; "								\
-		"if test -n ${filesize}; then "	\
+		"if test -n ${filesize}; "	\
 		"then " 						\
 			"run bootcmd_production; "							\
 		"fi;\0"
