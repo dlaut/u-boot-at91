@@ -154,13 +154,14 @@
 		"sleep ${usb_wait_t}; "                                 \
 		"tftp 0x22000000 ${tftp_dir}/uImage.bin; "       \
 		"sleep ${usb_wait_t}; "                                 \
-		"tftp 0x23000000 ${tftp_dir}/rootfs.cpio.lz4.u-boot; "\
+		"tftp 0x23000000 ${tftp_dir}/${rootfs}; "\
 		"usb stop; "                                            \
 		"bootm 0x22000000 0x23000000 0x21000000;\0"		\
 	"bootcmd_usb="							\
                 "echo Run from USB...; " 		                \
 		"gpio set 33; "						\
 		"env set tftp_dir matrix120-recovery; "						\
+		"env set rootfs rootfs.cpio.lz4.u-boot; "						\
 		"run load_boot_images_usb; "		\
 		"gpio set 35;\0"					\
     "bootcmd_usb_recursive="                                        \
@@ -170,18 +171,20 @@
                 "echo Run production test suite...; " 		                \
 		"gpio set 37; "						\
 		"env set tftp_dir matrix120-pts; "						\
+		"env set rootfs rootfs.cpio.gz.u-boot; "						\
 		"run load_boot_images_usb; "		\
 		"gpio set 34;\0"					\
 	"load_boot_images_eth="                                              \
 		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
 		"tftp 0x21000000 ${tftp_dir}/uImage.dtb; "       \
 		"tftp 0x22000000 ${tftp_dir}/uImage.bin; "       \
-		"tftp 0x23000000 ${tftp_dir}/rootfs.cpio.lz4.u-boot; "\
+		"tftp 0x23000000 ${tftp_dir}/${rootfs}; "\
 		"bootm 0x22000000 0x23000000 0x21000000;\0"		\
 	"bootcmd_eth="							\
                 "echo Run from ETH...; " 		                \
 		"gpio set 33; "						\
 		"env set tftp_dir matrix120-recovery; "						\
+		"env set rootfs rootfs.cpio.lz4.u-boot; "						\
 		"run load_boot_images_eth; "       \
 		"gpio set 35;\0"					\
     "bootcmd_eth_recursive="                                        \
