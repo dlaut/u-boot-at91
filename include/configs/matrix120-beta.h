@@ -135,7 +135,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"base_bootargs="						\
 		"quiet rootfstype=ramfs "	\
-		"root=/dev/ram0 rw ubi.mtd=1 ubi.mtd=2\0"					\
+		"root=/dev/ram0 rw ubi.mtd=1 ubi.mtd=2;\0"					\
 	"cdc_connect_timeout=120;\0"					\
 	"bootcmd_flash="						\
 		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
@@ -207,7 +207,7 @@
 		"then "							\
 			"sf erase 0x00100000 0x01A00000; "		\
 			"sf write 0x21000000 0x00100000 ${filesize}; "	\
-		"fi\0" 							\
+		"fi;\0" 							\
 	"update_user_ubifs="						\
 		"env set filesize 0; "		\
 		"tftp 0x21000000 matrix120/user.ubifs; "                \
@@ -215,18 +215,21 @@
 		"then " 						\
 			"sf erase 0x01B00000 0x00500000; "              \
 			"sf write 0x21000000 0x01B00000 ${filesize}; "  \
-		"fi\0" 							\
+		"fi;\0" 							\
 	"update_usb="                                                   \
+		"sf probe; "						\
+		"env set ethact usb_ether; "						\
 		"usb start; "                                           \
 		"run update_boot_ubifs; "				\
 		"sleep ${usb_wait_t}; "  				\
 		"run update_user_ubifs; "				\
 		"usb stop; " 						\
-		"run bootcmd_flash\0"					\
+		"run bootcmd_flash;\0"					\
 	"update_eth="                                                   \
+		"sf probe; "						\
 		"run update_boot_ubifs; "				\
 		"run update_user_ubifs; "				\
-		"run bootcmd_flash\0"					\
+		"run bootcmd_flash;\0"					\
 	"usb_wait_t=3;\0"						\
 	"bootdelay=0;\0"						\
 	"production_file="						\
