@@ -200,10 +200,18 @@
 		"mtdparts=f0020000.qspi:1M(u-boot),26M(boot),-(user)\0" \
 	"mtdids="							\
 		"nor0=f0020000.qspi\0"					\
+	"update_flash="						\
+		"env set filesize 0; "		\
+		"tftp 0x21000000 matrix120/flashimage.bin; "                \
+		"if test ${filesize} == 0x2000000 ; "				\
+		"then "							\
+			"sf erase 0x00000000 0x2000000; "		\
+			"sf write 0x21000000 0x00000000 0x2000000; "	\
+		"fi;\0" 			
 	"update_boot_ubifs="						\
 		"env set filesize 0; "		\
 		"tftp 0x21000000 matrix120/boot.ubifs; "                \
-		"if test ${filesize} != 0 ; "				\
+		"if test ${filesize} <= 0x01A00000 ; "				\
 		"then "							\
 			"sf erase 0x00100000 0x01A00000; "		\
 			"sf write 0x21000000 0x00100000 ${filesize}; "	\
@@ -211,7 +219,7 @@
 	"update_user_ubifs="						\
 		"env set filesize 0; "		\
 		"tftp 0x21000000 matrix120/user.ubifs; "                \
-		"if test ${filesize} != 0 ; "				\
+		"if test ${filesize} <= 0x00500000 ; "				\
 		"then " 						\
 			"sf erase 0x01B00000 0x00500000; "              \
 			"sf write 0x21000000 0x01B00000 ${filesize}; "  \
@@ -223,13 +231,20 @@
 		"run update_boot_ubifs; "				\
 		"sleep ${usb_wait_t}; "  				\
 		"run update_user_ubifs; "				\
-		"usb stop; " 						\
-		"run bootcmd_flash;\0"					\
+		"usb stop;\0" 						\
 	"update_eth="                                                   \
 		"sf probe; "						\
 		"run update_boot_ubifs; "				\
-		"run update_user_ubifs; "				\
-		"run bootcmd_flash;\0"					\
+		"run update_user_ubifs;\0"				\
+	"flash_usb="                                                   \
+		"sf probe; "						\
+		"env set ethact usb_ether; "						\
+		"usb start; "                                           \
+		"run update_flash; "				\
+		"usb stop;\0" 						\
+	"flash_eth="                                                   \
+		"sf probe; "						\
+		"run update_flash;\0"				\	
 	"usb_wait_t=3;\0"						\
 	"bootdelay=0;\0"						\
 	"production_file="						\
