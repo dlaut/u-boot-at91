@@ -207,7 +207,7 @@
 		"then "							\
 			"sf erase 0x00000000 0x2000000; "		\
 			"sf write 0x21000000 0x00000000 0x2000000; "	\
-		"fi;\0" 			
+		"fi;\0" 	\		
 	"update_boot_ubifs="						\
 		"env set filesize 0; "		\
 		"tftp 0x21000000 matrix120/boot.ubifs; "                \
