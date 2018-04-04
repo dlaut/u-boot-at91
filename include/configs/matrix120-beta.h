@@ -130,7 +130,7 @@
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_OFFSET_REDUND 	0x20000
 
-#define CONFIG_BOOTCOMMAND      "sf probe; env set ethact usb_ether; run production_check; run bootcmd_flash; run bootcmd_usb_recursive"
+#define CONFIG_BOOTCOMMAND      "sf probe; env set ethact usb_ether; run bootcmd_flash; run bootcmd_usb_recursive"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"base_bootargs="						\
 		"console=null rootfstype=ramfs "	\
@@ -145,7 +145,7 @@
 		"ubifsload 0x23000000 rootfs.cpio.gz.u-boot; "		\
 		"bootm 0x22000000 0x23000000 0x21000000;\0"		\
 	"bootcmd_usb="							\
-                "echo Run from USB...; " 		                \
+		"echo Run from USB...; " 		                \
 		"env set ethact usb_ether; "				\
 		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
 		"gpio set 33; "						\
@@ -158,7 +158,7 @@
 		"usb stop; "                                            \
 		"bootm 0x22000000 0x23000000 0x21000000; "		\
 		"gpio set 35;\0"					\
-        "bootcmd_usb_recursive="                                        \
+	"bootcmd_usb_recursive="                                        \
 		"run bootcmd_usb;"					\
 		"run bootcmd_usb_recursive;\0"				\
 	"ipaddr=192.168.0.1\0"				           	\
@@ -197,29 +197,7 @@
 		"run update_boot_ubifs; "				\
 		"run update_user_ubifs; "				\
 		"run bootcmd_flash\0"					\
-	"usb_wait_t=3;\0"						\
-	"production_file="						\
-		"/AppData/BootInfo.txt\0"				\
-	"production_check="								\
-		"ubi part user; "							\
-		"ubifsmount ubi0:user; "						\
-		"setenv filesize ''; "							\
-		"ubifsload 0x21000000 ${production_file}; "				\
-		"ubifsumount; "								\
-		"if test -n ${filesize}; then "						\
-			"gpio set 37;"							\
-			"echo Run production test suite...; "				\
-			"usb start; "							\
-			"tftp 0x21000000 matrix120-pts/uImage.dtb; "		\
-			"sleep ${usb_wait_t}; "					\
-			"tftp 0x22000000 matrix120-pts/uImage.bin; "		\
-			"sleep ${usb_wait_t}; "					\
-			"tftp 0x23000000 matrix120-pts/rootfs.cpio.gz.u-boot; "	\
-			"usb stop; "							\
-			"setenv bootargs ${base_bootargs} ${mtdparts}; "		\
-			"bootm 0x22000000 0x23000000 0x21000000; "			\
-			"gpio set 34;"							\
-		"fi;\0"
+	"usb_wait_t=1;\0"
 #endif
 
 /* SPL */
