@@ -133,8 +133,8 @@
 #define CONFIG_BOOTCOMMAND      "sf probe; env set ethact usb_ether; run production_check; run bootcmd_flash; run bootcmd_usb_recursive"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"base_bootargs="						\
-		"console=null rootfstype=ramfs "	\
-		"root=/dev/ram0 rw \0"					\
+		"console=null rootfstype=ramfs "			\
+		"root=/dev/ram0 rw ubi.mtd=1 ubi.mtd=2;\0"		\
 	"cdc_connect_timeout=120;\0"					\
 	"bootcmd_flash="						\
 		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
@@ -145,7 +145,7 @@
 		"ubifsload 0x23000000 rootfs.cpio.gz.u-boot; "		\
 		"bootm 0x22000000 0x23000000 0x21000000;\0"		\
 	"bootcmd_usb="							\
-                "echo Run from USB...; " 		                \
+		"echo Run from USB...; " 		                \
 		"env set ethact usb_ether; "				\
 		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
 		"gpio set 33; "						\
@@ -158,7 +158,7 @@
 		"usb stop; "                                            \
 		"bootm 0x22000000 0x23000000 0x21000000; "		\
 		"gpio set 35;\0"					\
-        "bootcmd_usb_recursive="                                        \
+	"bootcmd_usb_recursive="                                        \
 		"run bootcmd_usb;"					\
 		"run bootcmd_usb_recursive;\0"				\
 	"ipaddr=192.168.0.1\0"				           	\
