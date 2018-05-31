@@ -134,7 +134,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"base_bootargs="						\
 		"console=null rootfstype=ramfs "			\
-		"root=/dev/ram0 rw ubi.mtd=1 ubi.mtd=2;\0"		\
+		"root=/dev/ram0 rw ubi.mtd=1 ubi.mtd=2\0"		\
 	"cdc_connect_timeout=120;\0"					\
 	"bootcmd_flash="						\
 		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
