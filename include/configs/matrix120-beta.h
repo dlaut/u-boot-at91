@@ -135,7 +135,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"base_bootargs="						\
 		"quiet rootfstype=ramfs "	\
-		"root=/dev/ram0 rw ubi.mtd=1 ubi.mtd=2;\0"					\
+		"root=/dev/ram0 rw\0"					\
 	"cdc_connect_timeout=120;\0"					\
 	"bootcmd_flash="						\
 		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
@@ -197,7 +197,7 @@
 	"usbnet_devaddr=aa:bb:cc:dd:ee:ff;\0"				\
 	"usbnet_hostaddr=aa:bb:cc:dd:ee:ee;\0"				\
 	"mtdparts="							\
-		"mtdparts=f0020000.qspi:1M(u-boot),26M(boot),-(user)\0" \
+		"mtdparts=f0020000.qspi:1M(u-boot),26M(boot),-(user) ubi.mtd=1 ubi.mtd=2\0" \
 	"mtdids="							\
 		"nor0=f0020000.qspi\0"					\
 	"update_flash="						\
