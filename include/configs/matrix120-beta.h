@@ -136,9 +136,11 @@
 	"base_bootargs="						\
 		"quiet rootfstype=ramfs "	\
 		"root=/dev/ram0 rw\0"					\
+	"mtd_bootargs="								\
+		"ubi.mtd=1 ubi.mtd=2\0"					\
 	"cdc_connect_timeout=120;\0"					\
 	"bootcmd_flash="						\
-		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
+		"setenv bootargs ${base_bootargs} ${mtdparts} ${mtd_bootargs}; "	\
 		"ubi part boot; "					\
 		"ubifsmount ubi0:boot; "				\
 		"ubifsload 0x21000000 uImage.dtb; "			\
@@ -148,7 +150,7 @@
 		"bootm 0x22000000 0x23000000 0x21000000;\0"		\
 	"load_boot_images_usb="                                              \
 		"env set ethact usb_ether; "						\
-		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
+		"setenv bootargs ${base_bootargs} ${mtdparts} ${mtd_bootargs}; "	\
 		"usb start; "                                           \
 		"tftp 0x21000000 ${tftp_dir}/uImage.dtb; "       \
 		"sleep ${usb_wait_t}; "                                 \
@@ -175,7 +177,7 @@
 		"run load_boot_images_usb; "		\
 		"gpio set 34;\0"					\
 	"load_boot_images_eth="                                              \
-		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
+		"setenv bootargs ${base_bootargs} ${mtdparts} ${mtd_bootargs}; "	\
 		"tftp 0x21000000 ${tftp_dir}/uImage.dtb; "       \
 		"tftp 0x22000000 ${tftp_dir}/uImage.bin; "       \
 		"tftp 0x23000000 ${tftp_dir}/${rootfs}; "\
@@ -197,7 +199,7 @@
 	"usbnet_devaddr=aa:bb:cc:dd:ee:ff;\0"				\
 	"usbnet_hostaddr=aa:bb:cc:dd:ee:ee;\0"				\
 	"mtdparts="							\
-		"mtdparts=f0020000.qspi:1M(u-boot),26M(boot),-(user) ubi.mtd=1 ubi.mtd=2\0" \
+		"mtdparts=f0020000.qspi:1M(u-boot),26M(boot),-(user)\0" \
 	"mtdids="							\
 		"nor0=f0020000.qspi\0"					\
 	"update_flash="						\
