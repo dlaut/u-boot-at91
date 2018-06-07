@@ -32,4 +32,10 @@ config ATMEL_QSPI0
 	select ATMEL_QSPI
 	default n
 
+config SYS_PTS_TARGET_ABI
+	string "PTS target os type"
+	default "-musleabi"
+	help
+	  This option should contain the name of the target os type.
+
 endif

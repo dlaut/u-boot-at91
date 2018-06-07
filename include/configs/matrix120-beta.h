@@ -172,7 +172,7 @@
 	"bootcmd_production="							\
                 "echo Run production test suite...; " 		                \
 		"gpio set 37; "						\
-		"env set tftp_dir matrix120-pts; "						\
+		"env set tftp_dir matrix120-pts" CONFIG_SYS_PTS_TARGET_ABI "; "						\
 		"env set rootfs rootfs.cpio.gz.u-boot; "						\
 		"run load_boot_images_usb; "		\
 		"gpio set 34;\0"					\
