@@ -133,7 +133,7 @@
 #define CONFIG_BOOTCOMMAND      "sf probe; env set ethact usb_ether; run production_check; run bootcmd_flash; run bootcmd_usb_recursive"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"base_bootargs="						\
-		"console=null rootfstype=ramfs "			\
+		"quiet rootfstype=ramfs "				\
 		"root=/dev/ram0 rw ubi.mtd=1 ubi.mtd=2\0"		\
 	"cdc_connect_timeout=120;\0"					\
 	"bootcmd_flash="						\
