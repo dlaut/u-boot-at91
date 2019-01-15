@@ -145,6 +145,7 @@
 	"standard_boot="\
 		"echo Standard boot;" \
 		"env delete bootpath; "\
+		"env delete userbootloader; "\
 		"run _bootcmd_flash\0"\
 	"hmi_check=" \
         	"hmi manager; " \
