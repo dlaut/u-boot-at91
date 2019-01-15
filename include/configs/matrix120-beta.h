@@ -130,55 +130,60 @@
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_OFFSET_REDUND 	0x20000
 
-#define CONFIG_BOOTCOMMAND      "sf probe; env set ethact usb_ether; run production_check; run bootcmd_flash; run bootcmd_usb_recursive"
+#define CONFIG_BOOTCOMMAND      "sf probe; env set ethact usb_ether; "\
+				"run production_check; "\
+				"run hmi_check; "\
+				"run standard_boot; "\
+				"run loader_boot; "\
+				"run recursive_usb_boot"
+
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"base_bootargs="						\
 		"quiet rootfstype=ramfs "				\
 		"root=/dev/ram0 rw ubi.mtd=1 ubi.mtd=2\0"		\
-	"cdc_connect_timeout=120;\0"					\
-	"bootcmd_flash="						\
-		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
-		"ubi part boot; "					\
-		"ubifsmount ubi0:boot; "				\
-		"ubifsload 0x21000000 uImage.dtb; "			\
-		"ubifsload 0x22000000 uImage.bin; "			\
-		"ubifsload 0x23000000 rootfs.cpio.gz.u-boot; "		\
-		"bootm 0x22000000 0x23000000 0x21000000;\0"		\
-	"bootcmd_usb="							\
-		"echo Run from USB...; " 		                \
-		"env set ethact usb_ether; "				\
-		"setenv bootargs ${base_bootargs} ${mtdparts}; "	\
-		"gpio set 33; "						\
-		"usb start; "                                           \
-		"tftp 0x21000000 matrix120-recovery/uImage.dtb; "       \
-		"sleep ${usb_wait_t}; "                                 \
-		"tftp 0x22000000 matrix120-recovery/uImage.bin; "       \
-		"sleep ${usb_wait_t}; "                                 \
-		"tftp 0x23000000 matrix120-recovery/rootfs.cpio.gz.u-boot; "\
-		"usb stop; "                                            \
-		"bootm 0x22000000 0x23000000 0x21000000; "		\
-		"gpio set 35;\0"					\
-	"bootcmd_usb_recursive="                                        \
-		"run bootcmd_usb;"					\
-		"run bootcmd_usb_recursive;\0"				\
+	"cdc_connect_timeout=120\0"					\
+	"standard_boot="\
+		"echo Standard boot;" \
+		"env delete bootpath; "\
+		"run _bootcmd_flash\0"\
+	"hmi_check=" \
+        	"hmi manager; " \
+	        "if ${userbootloader}; then " \
+			"run loader_boot; " \
+        	"fi\0" 								\
+	"loader_boot="\
+		"echo Loader boot; " \
+		"env set userbootloader true; "\
+		"env set bootpath Loader; "\
+		"run _bootcmd_flash\0" \
+	"recursive_usb_boot="                                        \
+		"echo USB boot; " 		                \
+		"hmi ledset STATUS 1; "						\
+		"env set bootpath matrix120-recovery; "\
+		"env set userbootloader false; "\
+		"run _bootcmd_usb; "\
+		"hmi ledset TRIGGER 1; "					\
+		"run recursive_usb_boot\0"				\
 	"ipaddr=192.168.0.1\0"				           	\
 	"serverip=192.168.0.2\0"					\
 	"netmask=255.255.255.0\0"					\
 	"ethaddr=aa:bb:cc:dd:ee:ff\0"				\
-	"usbnet_devaddr=aa:bb:cc:dd:ee:ff;\0"				\
-	"usbnet_hostaddr=aa:bb:cc:dd:ee:ee;\0"				\
+	"usbnet_devaddr=aa:bb:cc:dd:ee:ff\0"				\
+	"usbnet_hostaddr=aa:bb:cc:dd:ee:ee\0"				\
 	"mtdparts="							\
 		"mtdparts=f0020000.qspi:1M(u-boot),26M(boot),-(user)\0" \
 	"mtdids="							\
 		"nor0=f0020000.qspi\0"					\
 	"load_boot_ubifs="                                              \
+		"env set ethact usb_ether; "\
 		"usb start; "                                           \
 		"tftp 0x21000000 matrix120/boot.ubifs; "                \
-		"usb stop;\0" 						\
+		"usb stop\0" 						\
 	"load_user_ubifs="                                              \
+		"env set ethact usb_ether;" \
 		"usb start; "                                           \
 		"tftp 0x21000000 matrix120/user.ubifs; "                \
-		"usb stop;\0"						\
+		"usb stop\0"						\
 	"update_boot_ubifs="						\
 		"env set filesize 0; run load_boot_ubifs; "		\
 		"if test ${filesize} != 0 ; "				\
@@ -196,30 +201,52 @@
 	"update_usb="                                                   \
 		"run update_boot_ubifs; "				\
 		"run update_user_ubifs; "				\
-		"run bootcmd_flash\0"					\
-	"usb_wait_t=3;\0"						\
+		"run standard_boot\0"					\
+	"usb_wait_t=3\0"						\
 	"production_file="						\
 		"/AppData/BootInfo.txt\0"				\
 	"production_check="								\
 		"ubi part user; "							\
 		"ubifsmount ubi0:user; "						\
-		"setenv filesize ''; "							\
+		"env set filesize ''; "							\
 		"ubifsload 0x21000000 ${production_file}; "				\
 		"ubifsumount; "								\
 		"if test -n ${filesize}; then "						\
-			"gpio set 37;"							\
-			"echo Run production test suite...; "				\
-			"usb start; "							\
-			"tftp 0x21000000 matrix120-pts/uImage.dtb; "		\
-			"sleep ${usb_wait_t}; "					\
-			"tftp 0x22000000 matrix120-pts/uImage.bin; "		\
-			"sleep ${usb_wait_t}; "					\
-			"tftp 0x23000000 matrix120-pts/rootfs.cpio.gz.u-boot; "	\
-			"usb stop; "							\
-			"setenv bootargs ${base_bootargs} ${mtdparts}; "		\
-			"bootm 0x22000000 0x23000000 0x21000000; "			\
-			"gpio set 34;"							\
-		"fi;\0"
+			"hmi ledset READY 1;"							\
+			"echo PTS boot; "				\
+			"env set bootpath matrix120-pts;"\
+			"run _bootcmd_usb;"\
+			"hmi ledset COM 1;"							\
+		"fi\0"\
+	"_bootcmd_usb="\
+		"env set ethact usb_ether; "\
+		"usb start; "							\
+		"tftp 0x21000000 ${bootpath}/uImage.dtb; "		\
+		"sleep ${usb_wait_t}; "					\
+		"tftp 0x22000000 ${bootpath}/uImage.bin; "		\
+		"sleep ${usb_wait_t}; "					\
+		"tftp 0x23000000 ${bootpath}/rootfs.cpio.gz.u-boot; "	\
+		"usb stop; "							\
+		"env set bootargs ${base_bootargs} ${mtdparts}; "		\
+		"run _enlarge_your_penis;" \
+		"bootm 0x22000000 0x23000000 0x21000000\0"\
+	"_bootcmd_flash="						\
+		"ubi part boot; "					\
+		"ubifsmount ubi0:boot;"				\
+		"ubifsload 0x21000000 ${bootpath}/uImage.dtb; "			\
+		"ubifsload 0x22000000 ${bootpath}/uImage.bin; "			\
+		"ubifsload 0x23000000 ${bootpath}/rootfs.cpio.gz.u-boot; "		\
+		"env set bootargs ${base_bootargs} ${mtdparts}; "	\
+		"run _enlarge_your_penis;" \
+		"bootm 0x22000000 0x23000000 0x21000000\0" \
+	"_enlarge_your_penis="	\
+		"fdt addr 0x21000000; "\
+		"fdt resize; "\
+		"fdt mknode / chosen; "\
+		"fdt mknode /chosen bootinfo; "\
+		"fdt set /chosen/bootinfo bootpath ${bootpath}; "\
+		"fdt set /chosen/bootinfo restoredefault ${userrestoredefault}; "\
+		"fdt set /chosen/bootinfo bootloader ${userbootloader}\0"
 #endif
 
 /* SPL */

@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += matrix120-beta.o
+obj-y += matrix120-beta.o cmd_dla.o
