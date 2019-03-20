@@ -155,7 +155,7 @@
 	"loader_boot="\
 		"echo Loader boot; " \
 		"env set userbootloader true; "\
-		"env set bootpath Loader; "\
+		"env set bootpath Loader_musl; "\
 		"run _bootcmd_flash\0" \
 	"recursive_usb_boot="                                        \
 		"echo USB boot; " 		                \
